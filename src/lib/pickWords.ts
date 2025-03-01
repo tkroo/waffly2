@@ -125,11 +125,12 @@ export const pickEightWords = async (): Promise<string[]> => {
       }
       words.clear(); // Clear set if not all words are unique
     } catch (e) {
-      console.log('error: ', e);
+      // console.log('DO WE EVER HIT THIS? error: ', e);
+      throw new Error(`catch error: ${e}, FAILED TO CHOOSE EIGHT WORDS after ${maxAttempts} attempts.`);
     }
   }
-
-  console.log(`FAILED TO CHOOSE EIGHT WORDS after ${maxAttempts} attempts.`);
-  return [];
+  throw new Error(`FAILED TO CHOOSE EIGHT WORDS after ${maxAttempts} attempts.`);
+  // console.log(`FAILED TO CHOOSE EIGHT WORDS after ${maxAttempts} attempts.`);
+  // return [];
   
 };

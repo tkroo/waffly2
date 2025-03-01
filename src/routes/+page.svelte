@@ -73,7 +73,7 @@
     pushState(page.url, {});
   }
 
-  const setup = async (s: number, puzzleArr: string[] | null) => {
+  const setup = async (s: number, puzzleArr: string[]) => {
     await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
     game = createGame(s);
     await game.initialize();
@@ -83,17 +83,17 @@
       board = game?.fillWaffleGrid(grid, words);
     } else {
       words = game?.getWords();
-      updateURL([s.toString(), ...words]);
-      writeGameToFireStore();
+      // console.log('words: ', $state.snapshot(words));
+      if(words.length) {
+        updateURL([s.toString(), ...words]);
+        writeGameToFireStore();
+      }
     }
-    if(words) {
-      board = game?.fillWaffleGrid(grid, words);
-    } else {
-      throw new Error('words is undefined');
-    }
-    myArrays.completedWords = [];
+    board = game?.fillWaffleGrid(grid, words);
     board = game?.shuffle2DArray(board);
     initialScramble = structuredClone($state.snapshot(board));
+    
+    myArrays.completedWords = [];
     game?.resetTurns();
     currentTurn = game?.startingSwaps;
     startingSwaps = game?.startingSwaps;

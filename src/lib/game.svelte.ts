@@ -261,7 +261,7 @@ export function createGame(gridSize: number): GameReturnType {
     if (!tile || tile.hidden) {
       return; // Do nothing if tile is null or hidden
     }
-
+    
     if (!_selectedTile) {
       // First click: select the tile
       _selectedTile = tile;
@@ -281,6 +281,7 @@ export function createGame(gridSize: number): GameReturnType {
         tile.swapStatus = '';
         _selectedTile = null;
       }
+      _selectedTile = null;
     }
   }
 
