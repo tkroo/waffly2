@@ -1719,6 +1719,7 @@ export const words = [
   "removed",
   "replace",
   "replica",
+  "reprise",
   "reptile",
   "request",
   "require",
