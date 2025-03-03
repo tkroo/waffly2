@@ -76,14 +76,12 @@
   const setup = async (s: number, puzzleArr: string[]) => {
     await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
     game = createGame(s);
-    await game.initialize();
     const grid = game.getGrid();
     if(puzzleArr) {
       words = puzzleArr;
-      board = game?.fillWaffleGrid(grid, words);
     } else {
+      await game.initialize();
       words = game?.getWords();
-      // console.log('words: ', $state.snapshot(words));
       if(words.length) {
         updateURL([s.toString(), ...words]);
         writeGameToFireStore();
