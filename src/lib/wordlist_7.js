@@ -438,7 +438,6 @@ export const words = [
   "charger",
   "chariot",
   "charity",
-  "charlie",
   "charter",
   "cheaper",
   "cheater",
