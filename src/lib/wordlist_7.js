@@ -1,4 +1,18 @@
-export const wordlist_7 = [
+export const exclusions = [
+  "stamina",
+  "origami",
+  "nirvana",
+  "asinine",
+  "element",
+  "outcast",
+  "inertia",
+  "oregano",
+  "yearend",
+  "reclaim",
+]
+
+
+export const words = [
   "abalone",
   "abandon",
   "abdomen",
@@ -2093,4 +2107,6 @@ export const wordlist_7 = [
   "zipping",
   "zooming",
   "zygotic"
-]
+];
+
+export const wordlist_7 = words.filter(w => !exclusions.includes(w));

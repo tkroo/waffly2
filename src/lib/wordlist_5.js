@@ -368,6 +368,15 @@ const plurals = [
   "zones",
 ];
 
+export const exclusions = [
+  "yield",
+  "alibi",
+  "extra",
+  "opera",
+  "adieu",
+  "ultra",
+];
+
 const words_5 = [
   "aback",
   "abase",
@@ -2791,4 +2800,4 @@ const words_5 = [
   "vinyl"
 ];
 
-export const wordlist_5 = words_5.filter(w => !plurals.includes(w));
+export const wordlist_5 = words_5.filter(w => !plurals.includes(w) && !exclusions.includes(w));
