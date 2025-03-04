@@ -22,7 +22,7 @@
   let currentTurn: number | null | undefined = $state();
   let startingSwaps = $state();
   let showPopup = $state(false);
-  let initialScramble = $state.raw({} as Board);
+  // let initialScramble = $state.raw({} as Board);
 
   const toggleDebug = () => {
     myBools.debug = !myBools.debug;
@@ -75,7 +75,6 @@
   const setup = async (s: number, puzzleArr?: string[]) => {
     await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
     game = createGame(s);
-    const grid = game.getGrid();
     if(puzzleArr !== undefined && puzzleArr !== null) {
       board = await game.initialize(puzzleArr);
       words = game?.getWords();
@@ -87,7 +86,7 @@
         writeGameToFireStore();
       }
     }
-    initialScramble = structuredClone($state.snapshot(board));
+    // initialScramble = structuredClone($state.snapshot(board));
     
     myArrays.completedWords = [];
     game?.resetTurns();
@@ -159,12 +158,12 @@
     return true;
   })
 
-  const resetToInitialScramble = () => {
-    board = initialScramble;
-    game?.updateTileStatuses(board);
-    game?.updateTileStatuses(board);
-    game?.resetTurns();
-  }
+  // const resetToInitialScramble = () => {
+  //   board = initialScramble;
+  //   game?.updateTileStatuses(board);
+  //   game?.updateTileStatuses(board);
+  //   game?.resetTurns();
+  // }
 
   const solvePuzzle = () => {
     board = game?.solveGrid(board) ?? board;
@@ -189,19 +188,21 @@
       solvePuzzle()
     }
     if (e.key == ']') {
-      currentTurn = (currentTurn ?? 0) + 1;
-      game?.increaseTurns();
+      // currentTurn = (currentTurn ?? 0) + 1;
+      game?.increaseTurns(1);
+      currentTurn = game?.getCurrentTurn();
     }
     if (e.key == '[') {
-      currentTurn = (currentTurn ?? 0) - 1;
+      // currentTurn = (currentTurn ?? 0) - 1;
       game?.decreaseTurns();
+      currentTurn = game?.getCurrentTurn();
     }
     if (e.key == '?') {
       showPopup = !showPopup;
     }
-    if (e.key == 'r') {
-      resetToInitialScramble();
-    }
+    // if (e.key == 'r') {
+    //   resetToInitialScramble();
+    // }
   }
 
   let pageTitle = $derived.by(() => {
@@ -250,7 +251,7 @@
 
   <Messages {myButton} {currentTurn} {outOfTurns} {solved} {chooseGame} {shuffle} />
   {#if myBools.fetchDefinitions}<DefinitionList />{/if}
-  <Debug {board} {words} {initialScramble} />
+  <Debug {board} {words} />
 {:else}
   <h2>Choose a puzzle size.</h2>
   <div class="choices">

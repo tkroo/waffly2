@@ -1,7 +1,7 @@
 <script>
   import { myBools } from "$lib/utils.svelte";
   // import History from "$lib/components/History.svelte";
-  let { board, words, initialScramble } = $props();
+  let { board, words } = $props();
   let size = $state(board.length);
 
   const colorClass = (status) => {
@@ -24,11 +24,11 @@
       {/each}
     </div>
     <div>{words.join(', ')}</div>
-    <div class="mono">
+    <!-- <div class="mono">
       {#each initialScramble as brow}
       <div class="tinygrid" style="grid-template-columns: repeat({size}, 1fr)">{@html brow.map(x => {return x.value ? `<div class="tiny ${colorClass(x.status)}">${x.value}</div>` : '<span class="blank">.</span>'}).join('')}</div>
       {/each}
-    </div>
+    </div> -->
   </div>
 {/if}
 

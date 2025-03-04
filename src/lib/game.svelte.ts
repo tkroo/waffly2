@@ -10,8 +10,7 @@ export function createGame(gridSize: number): GameReturnType {
   let _selectedTile: Tile | null = null; // State to track selected tile for swapping
   let _startingSwaps:number = gridSize == 5 ? 16 : 32;
   let currentTurn: number = _startingSwaps;
-  
-  
+
   async function initialize(puzzleArr?: string[]): Promise<Board> {
     _words = puzzleArr ? puzzleArr : await pickWords(_gridSize);
     currentTurn = _startingSwaps;
