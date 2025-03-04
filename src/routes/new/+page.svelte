@@ -1,26 +1,30 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
+
+  import type { Tile, Board, GameReturnType } from '$lib/types';
+  import { myBools, myArrays } from '$lib/utils.svelte';
   import Progress from '$lib/components/Progress.svelte';
+  import Messages from '$lib/components/Messages.svelte';
   import { createGame } from '$lib/game.svelte';
   import LetterTile from '$lib/components/LetterTile.svelte';
+  import DefinitionList from '$lib/components/DefinitionList.svelte';
 
   let board = $state();
-  let game;
+  let game: GameReturnType | null;
   let currentTurn = $state();
   
   const setup = async (s) => {
-    board = null;
-    console.log(`setup(${s}) called`);
     game = createGame(s);
     board = await game.initialize();
     currentTurn = game?.startingSwaps;
+    myArrays.completedWords = [];
     return board;
   }
 
   const handleTileClick = (tile: Tile) => {
     game?.swapTile(tile);
     game?.updateTileStatuses(board);
-    // myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
+    myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
     currentTurn = game?.getCurrentTurn();
   }
 
@@ -36,6 +40,13 @@
     return true;
   })
 
+  const shuffle = () => {
+    game?.resetTurns();
+    currentTurn = game?.startingSwaps;
+    myArrays.completedWords = [];
+    board = game?.shuffle2DArray(board) ?? [];
+  }
+
   const outOfTurns = $derived.by((): boolean => {
     if(!board) return false;
     return currentTurn !== null && currentTurn !== undefined && currentTurn <= 0 && !solved;
@@ -44,7 +55,7 @@
   const solvePuzzle = () => {
     board = game?.solveGrid(board) ?? board;
     board = game?.updateTileStatuses(board) ?? board;
-    // myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
+    myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -71,6 +82,9 @@
       game?.decreaseTurns();
       currentTurn = game?.getCurrentTurn();
     }
+    if (e.key == 'd') {
+      myBools.fetchDefinitions = !myBools.fetchDefinitions;
+    }
     // if (e.key == '?') {
     //   showPopup = !showPopup;
     // }
@@ -80,6 +94,10 @@
   }
 
 </script>
+
+{#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
+  <button class="myButton" style={mystyle} onclick={func}>{t}</button>
+{/snippet}
 
 <svelte:window onkeydown={handleKeyDown}/>
 
@@ -107,13 +125,13 @@
         </div>
       {/each}
     </div>
-  {/if}
-
-  {#if (solved || outOfTurns) || !board}
+    <Messages {myButton} {currentTurn} {outOfTurns} {solved} chooseGame={setup} {shuffle} />
+    {#if myBools.fetchDefinitions}<DefinitionList />{/if}
+  {:else}
   <h2>Choose a puzzle size</h2>
   <div class="choices">
-    <button class="myButton" onclick={() => setup(5)}>5x5</button>
-    <button class="myButton" onclick={() => setup(7)}>7x7</button>
+    {@render myButton("5x5 Puzzle", "", () => setup(5))}
+    {@render myButton("7x7 Puzzle", "", () => setup(7))}
   </div>
   {/if}
 </div>
