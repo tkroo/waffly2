@@ -12,12 +12,9 @@ export function createGame(gridSize: number): GameReturnType {
   let currentTurn: number = _startingSwaps;
   
   
-  async function initialize(puzzleArr?: string[]): Promise<Board> {
-    _words = puzzleArr ? puzzleArr : await pickWords(_gridSize);
+  async function initialize() {
+    _words = await pickWords(_gridSize);
     currentTurn = _startingSwaps;
-    _grid = fillWaffleGrid(_grid, _words);
-    _grid = shuffle2DArray(_grid);
-    return _grid;
   }
 
   function generateGrid(gridSize: number): Board {

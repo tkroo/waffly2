@@ -4,10 +4,9 @@
   import { pushState } from '$app/navigation';
   
   import type { Tile, Board, GameReturnType } from '$lib/types';
-  import { myBools, myArrays, COLLECTION_NAME } from '$lib/utils.svelte.js';
+  import { myBools, myArrays, COLLECTION_NAME } from '$lib/utils.svelte';
   import { createGame } from '$lib/game.svelte';
   import { decodeText, encodeText } from '$lib/rot13.js';
-  // import { writeData, readData } from '$lib/firebaseREMOVEME.js';
   
   import DefinitionList from '$lib/components/DefinitionList.svelte';
   import Debug from '$lib/components/Debug.svelte';
@@ -46,12 +45,12 @@
     }
   }
 
-  const chooseGame = async (s: number, puzzle: string[] | null = null) => {
+  const chooseGame = async (s: number, puzzle?: string[]) => {
     await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
     if(puzzle !== undefined) {
       setup(s, puzzle)
     } else {
-      setup(s, null);
+      setup(s);
     }
     
   }
@@ -73,22 +72,21 @@
     pushState(page.url, {});
   }
 
-  const setup = async (s: number, puzzleArr: string[]) => {
+  const setup = async (s: number, puzzleArr?: string[]) => {
     await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
     game = createGame(s);
     const grid = game.getGrid();
-    if(puzzleArr) {
-      words = puzzleArr;
-    } else {
-      await game.initialize();
+    if(puzzleArr !== undefined && puzzleArr !== null) {
+      board = await game.initialize(puzzleArr);
       words = game?.getWords();
-      if(words.length) {
+    } else {
+      board = await game.initialize();
+      words = game?.getWords();
+      if(words?.length) {
         updateURL([s.toString(), ...words]);
         writeGameToFireStore();
       }
     }
-    board = game?.fillWaffleGrid(grid, words);
-    board = game?.shuffle2DArray(board);
     initialScramble = structuredClone($state.snapshot(board));
     
     myArrays.completedWords = [];
@@ -171,7 +169,7 @@
   const solvePuzzle = () => {
     board = game?.solveGrid(board) ?? board;
     board = game?.updateTileStatuses(board) ?? board;
-    myArrays.completedWords = game?.checkRowsAndColumns(board);
+    myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -216,7 +214,7 @@
 
 </script>
 
-{#snippet myButton(t, mystyle, func)}
+{#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
   <button class="myButton" style={mystyle} onclick={func}>{t}</button>
 {/snippet}
 

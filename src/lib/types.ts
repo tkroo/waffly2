@@ -16,7 +16,7 @@ export type GameReturnType = {
   currentTurn: number;
   startingSwaps: number | null;
   words: string[] | null;
-  initialize: () => Promise<void>;
+  initialize: (puzzleArr?: string[]) => Promise<Board>; // Ensure puzzleArr is optional
   generateGrid: (gridSize: number) => Board;
   fillWaffleGrid: (grid: Board, words: string[]) => Board;
   shuffle2DArray: (myArray: Board) => Board;
@@ -29,9 +29,9 @@ export type GameReturnType = {
   solveGrid: (grid: Board) => Board;
   updateTileStatuses: (grid: Board) => Board;
   countAppearances: (arr: string[]) => { [key: string]: number; };
-  swapTile: (tile: Tile) => void; // Added swapTile function
+  swapTile: (tile: Tile) => void;
   resetTurns: () => void;
-  checkRowsAndColumns: (grid: Board) => void;
+  checkRowsAndColumns: (grid: Board) => string[] | undefined;
   increaseTurns: () => void;
   decreaseTurns: () => void;
 };

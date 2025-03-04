@@ -7,5 +7,5 @@ export const myBools = $state({
 export const COLLECTION_NAME = 'wafflygames'
 
 export const myArrays = $state({
-  completedWords: [],
+  completedWords: [] as string[],
 })
