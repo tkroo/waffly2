@@ -24,8 +24,8 @@
         {/if}
       </div>
       <div class="choices">
-        <MyButton t="5x5" mystyle="" func={() => props.setup(5)} />
-        <MyButton t="7x7" mystyle="" func={() => props.setup(7)} />
+        <MyButton t="new 5x5" mystyle="" func={() => props.setup(5)} />
+        <MyButton t="new 7x7" mystyle="" func={() => props.setup(7)} />
         <!-- {@render props.myButton("5x5 Puzzle", "", () => props.chooseGame(5))} -->
         <!-- {@render props.myButton("7x7 Puzzle", "", () => props.chooseGame(7))} -->
       </div>

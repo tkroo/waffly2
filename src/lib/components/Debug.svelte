@@ -44,13 +44,13 @@
     z-index: 1000;
     /* font-size: 2rem; */
   }
-  .cols {
+  /* .cols {
     display: flex;
     gap: 1rem;
   }
   .cols .mono {
     font-size: 0.85rem;
-  }
+  } */
   .mono {
     padding: 0;
     letter-spacing: 10px;

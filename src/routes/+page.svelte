@@ -1,68 +1,43 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition';
   import { page } from '$app/state';
   import { onMount } from 'svelte';
   import { pushState } from '$app/navigation';
-  
-  import type { Tile, Board, GameReturnType } from '$lib/types';
-  import { myBools, myArrays, COLLECTION_NAME } from '$lib/utils.svelte';
+
+  import type { Tile } from '$lib/types';
+  import { myBools, myArrays } from '$lib/utils.svelte';
   import { createGame } from '$lib/game.svelte';
   import { decodeText, encodeText } from '$lib/rot13.js';
-  
+
+  import Debug2 from '$lib/components/Debug2.svelte';
   import DefinitionList from '$lib/components/DefinitionList.svelte';
-  import Debug from '$lib/components/Debug.svelte';
-	import Header from '$lib/components/Header.svelte';
-  import LetterTile from "$lib/components/LetterTile.svelte";
-  import Messages from "$lib/components/Messages.svelte";
-  import Progress from "$lib/components/Progress.svelte";
+  import Header from '$lib/components/Header2.svelte';
+  import LetterTile from '$lib/components/LetterTile.svelte';
+  import Messages from '$lib/components/Messages.svelte';
+  import MyButton from '$lib/components/MyButton.svelte';
+  import Progress from '$lib/components/Progress.svelte';
+  import Spinner from '$lib/components/spinner.svelte';
 
   const title = 'waffleclone';
-  let board = $state({} as Board);
-  let words: string[] | null = $state([]);
-  let game: GameReturnType | null;
-  let currentTurn: number | null | undefined = $state();
-  let startingSwaps = $state();
+  let board = $state();
+  let game = $state();
+  let currentTurn = $state();
   let showPopup = $state(false);
-  // let initialScramble = $state.raw({} as Board);
+  let words = $state();
+  let puzzle = $state();
 
-  const toggleDebug = () => {
-    myBools.debug = !myBools.debug;
-  }
 
   onMount(() => {
     checkForPuzzle();
   })
 
-  const handleNav = () => {
-    checkForPuzzle();
-  }
-
   const checkForPuzzle = () => {
-    const p = getPuzzleFromSearchParam();
-    if (p !== null) {
-      chooseGame(p.size, p.puzzle);
-    } else {
-      return null;
-    }
-  }
-
-  const chooseGame = async (s: number, puzzle?: string[]) => {
-    await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
-    if(puzzle !== undefined) {
-      setup(s, puzzle)
-    } else {
-      setup(s);
-    }
-    
-  }
-
-  const getPuzzleFromSearchParam = () => {
     const p = page.url.searchParams.get('p');
     if (p !== null) {
-      const puzzle = decodeText(p);
-      const size = parseInt(p[0]);
-      return ({ size: size, puzzle: puzzle });
+      puzzle = decodeText(p);
+      setup(parseInt(p[0]));
     } else {
-       return null;
+      puzzle = null;
     }
   }
 
@@ -71,34 +46,28 @@
     page.url.searchParams.set('p', encoded);
     pushState(page.url, {});
   }
-
-  const setup = async (s: number, puzzleArr?: string[]) => {
-    await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
+  
+  const setup = async (s) => {
+    myBools.working = true;
+    myBools.generateError = false;
     game = createGame(s);
-    if(puzzleArr !== undefined && puzzleArr !== null) {
-      board = await game.initialize(puzzleArr);
+    try {
+      board = puzzle ? await game.initialize(puzzle) : await game.initialize();
+      currentTurn = game?.startingSwaps;
       words = game?.getWords();
-    } else {
-      board = await game.initialize();
-      words = game?.getWords();
-      if(words?.length) {
+      if(!puzzle && words?.length) {
         updateURL([s.toString(), ...words]);
-        writeGameToFireStore();
       }
+      puzzle = null;
+      myArrays.completedWords = [];
+      myBools.working = false;
+      myBools.generateError = false;
+      return board;
+    } catch (error) {
+      console.log("FAILED TO CREATE BOARD");
+      myBools.generateError = true;
+      console.log(error);
     }
-    // initialScramble = structuredClone($state.snapshot(board));
-    
-    myArrays.completedWords = [];
-    game?.resetTurns();
-    currentTurn = game?.startingSwaps;
-    startingSwaps = game?.startingSwaps;
-  }
-
-  const shuffle = () => {
-    game?.resetTurns();
-    currentTurn = game?.startingSwaps;
-    myArrays.completedWords = [];
-    board = game?.shuffle2DArray(board) ?? [];
   }
 
   const handleTileClick = (tile: Tile) => {
@@ -108,46 +77,8 @@
     currentTurn = game?.getCurrentTurn();
   }
 
-  const writeGameToFireStore = async() => {
-    if( words !== null && words !== undefined) {
-      try {
-        const data = {
-          words: words,
-          rot13string: words[0].length + '' + encodeText(words)
-        }
-        const response = await fetch('/api/fb/write', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ collectionName: COLLECTION_NAME, data }),
-        });
-        if (response.ok) {
-          console.log('Data added');
-        } else {
-          console.error('Error');
-        }
-        // const existingData = await readData('wafflygames');
-        // const existingRot13strings = existingData.map(x => x.rot13string);
-        // const newRot13string = words[0].length + '' + encodeText(words);
-        // if (!existingRot13strings.includes(newRot13string)) {
-        //   const data = {
-        //     words: words,
-        //     rot13string: newRot13string
-        //   }
-        //   await writeData('wafflygames', data);
-        // }
-      } catch (error) {
-        console.log(error, 'FAILED TO SAVE DATA.');
-      }
-    } else {
-      throw new Error('words is undefined');
-    }
-  }
-
-  const outOfTurns = $derived.by((): boolean => {
-    return currentTurn !== null && currentTurn !== undefined && currentTurn <= 0 && !solved;
-  });
-  
   const solved = $derived.by(() => {
+    if(!board) return false;
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board.length; j++) {
         if (board[i][j].value != board[i][j].correctValue) {
@@ -158,14 +89,21 @@
     return true;
   })
 
-  // const resetToInitialScramble = () => {
-  //   board = initialScramble;
-  //   game?.updateTileStatuses(board);
-  //   game?.updateTileStatuses(board);
-  //   game?.resetTurns();
-  // }
+  const shuffle = () => {
+    game?.resetTurns();
+    currentTurn = game?.startingSwaps;
+    myArrays.completedWords = [];
+    board = game?.shuffle2DArray(board) ?? [];
+  }
+
+  const outOfTurns = $derived.by((): boolean => {
+    if(!board) return false;
+    return currentTurn !== null && currentTurn !== undefined && currentTurn <= 0 && !solved;
+  });
 
   const solvePuzzle = () => {
+    myBools.working = false;
+    myBools.generateError = false;
     board = game?.solveGrid(board) ?? board;
     board = game?.updateTileStatuses(board) ?? board;
     myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
@@ -179,91 +117,95 @@
       shuffle();
     }
     if (e.key == '5') {
-      chooseGame(5);
+      setup(5);
     }
     if (e.key == '7') {
-      chooseGame(7);
+      setup(7);
     }
     if (e.key == 's') {
       solvePuzzle()
     }
     if (e.key == ']') {
-      // currentTurn = (currentTurn ?? 0) + 1;
       game?.increaseTurns(1);
       currentTurn = game?.getCurrentTurn();
     }
     if (e.key == '[') {
-      // currentTurn = (currentTurn ?? 0) - 1;
       game?.decreaseTurns();
       currentTurn = game?.getCurrentTurn();
     }
-    if (e.key == '?') {
-      showPopup = !showPopup;
+    if (e.key == 'd') {
+      myBools.fetchDefinitions = !myBools.fetchDefinitions;
     }
+    // if (e.key == '?') {
+    //   showPopup = !showPopup;
+    // }
     // if (e.key == 'r') {
     //   resetToInitialScramble();
     // }
   }
 
-  let pageTitle = $derived.by(() => {
-    if (board.length > 0) {
-      return `${board?.length}x${board?.length}${title}`;
-    } else {
-      return title
-    }
-  })
-
 </script>
 
-{#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
-  <button class="myButton" style={mystyle} onclick={func}>{t}</button>
-{/snippet}
+<!-- {#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
+  <button class="myButton" style={mystyle} onclick={func}>{myBools.working ? 'working' : t}</button>
+{/snippet} -->
 
+<svelte:window onkeydown={handleKeyDown} onpopstate={() => checkForPuzzle()}/>
 
-<svelte:window onkeydown={handleKeyDown} onpopstate={() => handleNav()}/>
-<svelte:head>
-  <title>{pageTitle}</title>
-</svelte:head>
 
 <main>
-  <Header {title} {showPopup} bind:words />
-{#if board && words!.length > 0}
-  <Progress {currentTurn} {startingSwaps} {toggleDebug} {board} />
-  
-  <div class="board" class:solved={solved} class:failed={outOfTurns} style="--cols: {board.length}" >
-    {#each board as row, rowIndex}
-      <div class="row" data-row={rowIndex}>
-        {#each row as tile, colIndex}
-          {#if !tile.hidden}
-            <LetterTile
-              {handleTileClick}
-              {tile}
-              {solved} {outOfTurns}
-              delayFactor={colIndex+rowIndex}
-            /> 
-          {:else}
-          <div class="tile blank"></div>
-          {/if}
-        {/each}
-      </div>
-    {/each}
-  </div>
+  <Header {title} {showPopup} bind:board={board} />
+  {#if board}
+  <Progress {currentTurn} startingSwaps={game?.startingSwaps} {board} />
+  <div transition:fade class="board" class:solved={solved} class:failed={outOfTurns} style="--cols: {board.length}" >
+      
+      {#each board as row, rowIndex}
+        <div class="row" data-row={rowIndex}>
+          {#each row as tile, colIndex}
+            {#if !tile.hidden}
+              <LetterTile
+                {handleTileClick}
+                {tile}
+                {solved}
+                {outOfTurns}
+                delayFactor={colIndex+rowIndex}
+              />
+            {:else}
+            <div class="tile blank"></div>
+            {/if}
+          {/each}
+        </div>
+      {/each}
+    </div>
+    <Messages {currentTurn} {outOfTurns} {solved} {setup} {shuffle} />
+    {#if myBools.fetchDefinitions}<DefinitionList />{/if}
+    <Debug2 {board} {words} />
 
-  <Messages {myButton} {currentTurn} {outOfTurns} {solved} {chooseGame} {shuffle} />
-  {#if myBools.fetchDefinitions}<DefinitionList />{/if}
-  <Debug {board} {words} />
-{:else}
-  <h2>Choose a puzzle size.</h2>
-  <div class="choices">
-    {@render myButton("5x5 Puzzle", "", () => chooseGame(5))}
-    {@render myButton("7x7 Puzzle", "", () => chooseGame(7))}
-  </div>
-{/if}
+    
+  {:else}
+  {#if myBools.working}
+  <h2>
+    {#if myBools.generateError}
+      failed. try again
+    {:else}
+      <Spinner />
+    {/if}
+  </h2>
+  {:else}
+  <h2>Choose a puzzle size</h2>
+  {/if}
+    <div class="choices">
+      <MyButton t="5x5 Puzzle" mystyle="" func={() => setup(5)} />
+      <MyButton t="7x7 Puzzle" mystyle="" func={() => setup(7)} />
+      <!-- {@render myButton("5x5 Puzzle", "", () => setup(5))} -->
+      <!-- {@render myButton("7x7 Puzzle", "", () => setup(7))} -->
+    </div>
+  {/if}
 </main>
 
 
+
 <style>
-  h2 {text-align: center;}
   .board {
     --gap: 0.5rem;
     position: relative;
@@ -274,18 +216,15 @@
     container-type: inline-size;
     width: 100%;
   }
-
   .board.failed {
     opacity: 0.5;
   }
-
   .row {
     display: grid;
     gap: var(--gap);
     grid-template-columns: repeat(var(--cols), 1fr);
     width: 100%;
   }
-
   .tile.blank {
     visibility: hidden;
   }
@@ -295,9 +234,19 @@
     } 
   }
 
-
-  /* myButton snippet css */
-  .myButton {
+  h2 {
+    text-align: center;
+  }
+  .choices {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    width: 100%;
+    color: var(--bg);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  /* .myButton {
     width: 100%;
     border-radius: var(--radius);
     color: var(--ccolor);
@@ -311,9 +260,8 @@
     justify-content: center;
     margin: 0 auto;
   }
-
   .myButton:hover {
    color: #fff;
     background-color: var(--ccolor);
-  }
+  } */
 </style>
