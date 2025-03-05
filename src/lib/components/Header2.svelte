@@ -38,7 +38,7 @@
   h1 button {
     margin: 0;
     padding: 0;
-    font-size: 1.2rem;
+    font-size: 2rem;
     font-weight: bold;
     /* text-transform: uppercase; */
     /* color: var(--ccolor); */

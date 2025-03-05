@@ -37,9 +37,12 @@
         {gameMessages.lost[Math.floor(Math.random() * gameMessages.lost.length)]}
       </div>
       <div class="choices">
-        {@render props.myButton("Replay ?", "grid-column: 1 / span 2;", () => props.shuffle())}
-        {@render props.myButton("5x5 Puzzle", "", () => props.chooseGame(5))}
-        {@render props.myButton("7x7 Puzzle", "", () => props.chooseGame(7))}
+        <MyButton t="Replay ?" mystyle="grid-column: 1 / span 2;" func={() => props.shuffle()} />
+        <MyButton t="5x5" mystyle="" func={() => props.setup(5)} />
+        <MyButton t="7x7" mystyle="" func={() => props.setup(7)} />
+        <!-- {@render props.myButton("Replay ?", "grid-column: 1 / span 2;", () => props.shuffle())} -->
+        <!-- {@render props.myButton("5x5 Puzzle", "", () => props.chooseGame(5))} -->
+        <!-- {@render props.myButton("7x7 Puzzle", "", () => props.chooseGame(7))} -->
       </div>
     </div>
   {/if}

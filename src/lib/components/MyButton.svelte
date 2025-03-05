@@ -1,8 +1,10 @@
 <script>
+	import { myBools } from "$lib/utils.svelte";
+
   let props = $props();
 </script>
 
-<button class="myButton" style={props.mystyle} onclick={props.func}>{props.t}</button>
+<button class="myButton" style={props.mystyle} onclick={props.func} disabled={myBools.working && !myBools.generateError}>{props.t}</button>
 
 
 <style>
@@ -21,7 +23,18 @@
     margin: 0 auto;
   }
   .myButton:hover {
-   color: #fff;
+    color: #fff;
     background-color: var(--ccolor);
+  }
+
+  .myButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .myButton:disabled:hover {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--ccolor);
+    background-color: #fff;
   }
 </style>

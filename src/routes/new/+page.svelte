@@ -1,18 +1,22 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
+  import { page } from '$app/state';
+  import { onMount } from 'svelte';
+  import { pushState } from '$app/navigation';
 
   import type { Tile } from '$lib/types';
   import { myBools, myArrays } from '$lib/utils.svelte';
   import { createGame } from '$lib/game.svelte';
+  import { decodeText, encodeText } from '$lib/rot13.js';
 
-  import Spinner from '$lib/components/spinner.svelte';
   import Debug2 from '$lib/components/Debug2.svelte';
+  import DefinitionList from '$lib/components/DefinitionList.svelte';
   import Header from '$lib/components/Header2.svelte';
+  import LetterTile from '$lib/components/LetterTile.svelte';
+  import Messages from '$lib/components/Messages.svelte';
   import MyButton from '$lib/components/MyButton.svelte';
   import Progress from '$lib/components/Progress.svelte';
-  import Messages from '$lib/components/Messages.svelte';
-  import LetterTile from '$lib/components/LetterTile.svelte';
-  import DefinitionList from '$lib/components/DefinitionList.svelte';
+  import Spinner from '$lib/components/spinner.svelte';
 
   const title = 'waffleclone';
   let board = $state();
@@ -20,15 +24,41 @@
   let currentTurn = $state();
   let showPopup = $state(false);
   let words = $state();
+  let puzzle = $state();
+
+
+  onMount(() => {
+    checkForPuzzle();
+  })
+
+  const checkForPuzzle = () => {
+    const p = page.url.searchParams.get('p');
+    if (p !== null) {
+      puzzle = decodeText(p);
+      setup(parseInt(p[0]));
+    } else {
+      puzzle = null;
+    }
+  }
+
+  const updateURL = (p: string[]) => {
+    const encoded = encodeText(p);
+    page.url.searchParams.set('p', encoded);
+    pushState(page.url, {});
+  }
   
   const setup = async (s) => {
     myBools.working = true;
     myBools.generateError = false;
     game = createGame(s);
     try {
-      board = await game.initialize();
+      board = puzzle ? await game.initialize(puzzle) : await game.initialize();
       currentTurn = game?.startingSwaps;
       words = game?.getWords();
+      if(!puzzle && words?.length) {
+        updateURL([s.toString(), ...words]);
+      }
+      puzzle = null;
       myArrays.completedWords = [];
       myBools.working = false;
       myBools.generateError = false;
@@ -72,6 +102,8 @@
   });
 
   const solvePuzzle = () => {
+    myBools.working = false;
+    myBools.generateError = false;
     board = game?.solveGrid(board) ?? board;
     board = game?.updateTileStatuses(board) ?? board;
     myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
@@ -85,10 +117,10 @@
       shuffle();
     }
     if (e.key == '5') {
-      setup(e, 5);
+      setup(5);
     }
     if (e.key == '7') {
-      setup(e, 7);
+      setup(7);
     }
     if (e.key == 's') {
       solvePuzzle()
@@ -114,11 +146,12 @@
 
 </script>
 
-{#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
+<!-- {#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
   <button class="myButton" style={mystyle} onclick={func}>{myBools.working ? 'working' : t}</button>
-{/snippet}
+{/snippet} -->
 
-<svelte:window onkeydown={handleKeyDown}/>
+<svelte:window onkeydown={handleKeyDown} onpopstate={() => checkForPuzzle()}/>
+
 
 <main>
   <Header {title} {showPopup} bind:board={board} />
@@ -144,7 +177,7 @@
         </div>
       {/each}
     </div>
-    <Messages {myButton} {currentTurn} {outOfTurns} {solved} {setup} {shuffle} />
+    <Messages {currentTurn} {outOfTurns} {solved} {setup} {shuffle} />
     {#if myBools.fetchDefinitions}<DefinitionList />{/if}
     <Debug2 {board} {words} />
 
@@ -173,10 +206,6 @@
 
 
 <style>
-  .wrapper {
-    max-width: 600px;
-    margin: 0 auto;
-  }
   .board {
     --gap: 0.5rem;
     position: relative;
@@ -217,7 +246,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-  .myButton {
+  /* .myButton {
     width: 100%;
     border-radius: var(--radius);
     color: var(--ccolor);
@@ -234,5 +263,5 @@
   .myButton:hover {
    color: #fff;
     background-color: var(--ccolor);
-  }
+  } */
 </style>
