@@ -60,8 +60,8 @@
     </label> -->
     <h2>Info</h2>
     <LinkToOriginal />
-    <h2>Stats</h2>
-    <a href="/stats">stats</a>
+    <!-- <h2>Stats</h2>
+    <a href="/stats">stats</a> -->
   </div>
 </div>
 {/if}
