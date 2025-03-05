@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { wordlist_5 } from "$lib/wordlist_5.js";
-  import { wordlist_7 } from "$lib/wordlist_7.js";
+  import { wordlist_5, exclusions as ex5 } from "$lib/wordlist_5.js";
+  import { wordlist_7, exclusions as ex7 } from "$lib/wordlist_7.js";
+
   import GameStats from "$lib/components/GameStats.svelte";
   import { COLLECTION_NAME } from "$lib/utils.svelte";
   
@@ -23,8 +24,10 @@
   }
 
   let duplicateEntries = $derived.by(() => gdata.filter((x, i) => gdata.findIndex(y => y.rot13string == x.rot13string) != i));
-  let games_5_letters = $derived.by(() => gdata.filter(game => game.words.length == 6));
-  let games_7_letters = $derived.by(() => gdata.filter(game => game.words.length == 8));
+  let games_5_letters = $derived.by(() => gdata.filter(game => game.words.length == 6)
+    .filter(game => game.words.filter(word => ex5.includes(word)).length == 0));
+  let games_7_letters = $derived.by(() => gdata.filter(game => game.words.length == 8)
+    .filter(game => game.words.filter(word => ex7.includes(word)).length == 0));
 
   let testword = $state('');
   
@@ -52,10 +55,26 @@
     <div class="row">
       <div class="col">
         <GameStats title="5x5 games" games={games_5_letters} />
+        <div class="excluded">
+          <p>Excluded words:</p>
+          <ul>
+            {#each ex5 as word}
+              <li>{word}</li>
+            {/each}
+          </ul>
+        </div>
       </div>
   
       <div class="col">
         <GameStats title="7x7 games" games={games_7_letters} />
+        <div class="excluded">
+          <p>Excluded words:</p>
+          <ul>
+            {#each ex7 as word}
+              <li>{word}</li>
+            {/each}
+          </ul>
+        </div>
       </div>
     </div>
   </section>
