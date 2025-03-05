@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { myBools } from "$lib/utils.svelte";
   import { gameMessages } from "$lib/game_messages";
+  import MyButton from "$lib/components/MyButton.svelte";
+  import Spinner from "$lib/components/spinner.svelte";
   let props = $props();
   import { fade } from "svelte/transition";
 </script>
@@ -10,12 +13,22 @@
   {#if props.solved}
     <div transition:fade class="fade-container">
       <div class="win-loose">
-        {props.currentTurn < 2 ? gameMessages.close[Math.floor(Math.random() * gameMessages.close.length)] : gameMessages.won[Math.floor(Math.random() * gameMessages.won.length)]}
+        {#if myBools.working}
+          {#if myBools.generateError}
+            failed. try again
+          {:else}
+            <Spinner />
+          {/if}
+        {:else}
+          {props.currentTurn < 2 ? gameMessages.close[Math.floor(Math.random() * gameMessages.close.length)] : gameMessages.won[Math.floor(Math.random() * gameMessages.won.length)]}
+        {/if}
       </div>
-       <div class="choices">
-        {@render props.myButton("5x5 Puzzle", "", () => props.chooseGame(5))}
-        {@render props.myButton("7x7 Puzzle", "", () => props.chooseGame(7))}
-       </div>
+      <div class="choices">
+        <MyButton t="5x5" mystyle="" func={() => props.setup(5)} />
+        <MyButton t="7x7" mystyle="" func={() => props.setup(7)} />
+        <!-- {@render props.myButton("5x5 Puzzle", "", () => props.chooseGame(5))} -->
+        <!-- {@render props.myButton("7x7 Puzzle", "", () => props.chooseGame(7))} -->
+      </div>
     </div>
   {/if}
   {#if props.outOfTurns}

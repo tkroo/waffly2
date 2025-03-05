@@ -1,24 +1,43 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
 
-  import type { Tile, Board, GameReturnType } from '$lib/types';
+  import type { Tile } from '$lib/types';
   import { myBools, myArrays } from '$lib/utils.svelte';
+  import { createGame } from '$lib/game.svelte';
+
+  import Spinner from '$lib/components/spinner.svelte';
+  import Debug2 from '$lib/components/Debug2.svelte';
+  import Header from '$lib/components/Header2.svelte';
+  import MyButton from '$lib/components/MyButton.svelte';
   import Progress from '$lib/components/Progress.svelte';
   import Messages from '$lib/components/Messages.svelte';
-  import { createGame } from '$lib/game.svelte';
   import LetterTile from '$lib/components/LetterTile.svelte';
   import DefinitionList from '$lib/components/DefinitionList.svelte';
 
+  const title = 'waffleclone';
   let board = $state();
-  let game: GameReturnType | null;
+  let game = $state();
   let currentTurn = $state();
+  let showPopup = $state(false);
+  let words = $state();
   
   const setup = async (s) => {
+    myBools.working = true;
+    myBools.generateError = false;
     game = createGame(s);
-    board = await game.initialize();
-    currentTurn = game?.startingSwaps;
-    myArrays.completedWords = [];
-    return board;
+    try {
+      board = await game.initialize();
+      currentTurn = game?.startingSwaps;
+      words = game?.getWords();
+      myArrays.completedWords = [];
+      myBools.working = false;
+      myBools.generateError = false;
+      return board;
+    } catch (error) {
+      console.log("FAILED TO CREATE BOARD");
+      myBools.generateError = true;
+      console.log(error);
+    }
   }
 
   const handleTileClick = (tile: Tile) => {
@@ -59,17 +78,17 @@
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    // if (e.key == '-') {
-    //   myBools.debug = !myBools.debug;
-    // }
-    // if (e.key == '=') {
-    //   shuffle();
-    // }
+    if (e.key == '-') {
+      myBools.debug = !myBools.debug;
+    }
+    if (e.key == '=') {
+      shuffle();
+    }
     if (e.key == '5') {
-      setup(5);
+      setup(e, 5);
     }
     if (e.key == '7') {
-      setup(7);
+      setup(e, 7);
     }
     if (e.key == 's') {
       solvePuzzle()
@@ -96,17 +115,17 @@
 </script>
 
 {#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
-  <button class="myButton" style={mystyle} onclick={func}>{t}</button>
+  <button class="myButton" style={mystyle} onclick={func}>{myBools.working ? 'working' : t}</button>
 {/snippet}
 
 <svelte:window onkeydown={handleKeyDown}/>
 
-<div class="wrapper">
-  <h1>test waffleclone</h1>
-
+<main>
+  <Header {title} {showPopup} bind:board={board} />
   {#if board}
-    <Progress {currentTurn} startingSwaps={game?.startingSwaps} toggleDebug={false} {board} />
-    <div transition:fade class="board" class:solved={solved} class:failed={outOfTurns} style="--cols: {board.length}" >
+  <Progress {currentTurn} startingSwaps={game?.startingSwaps} {board} />
+  <div transition:fade class="board" class:solved={solved} class:failed={outOfTurns} style="--cols: {board.length}" >
+      
       {#each board as row, rowIndex}
         <div class="row" data-row={rowIndex}>
           {#each row as tile, colIndex}
@@ -125,16 +144,31 @@
         </div>
       {/each}
     </div>
-    <Messages {myButton} {currentTurn} {outOfTurns} {solved} chooseGame={setup} {shuffle} />
+    <Messages {myButton} {currentTurn} {outOfTurns} {solved} {setup} {shuffle} />
     {#if myBools.fetchDefinitions}<DefinitionList />{/if}
+    <Debug2 {board} {words} />
+
+    
+  {:else}
+  {#if myBools.working}
+  <h2>
+    {#if myBools.generateError}
+      failed. try again
+    {:else}
+      <Spinner />
+    {/if}
+  </h2>
   {:else}
   <h2>Choose a puzzle size</h2>
-  <div class="choices">
-    {@render myButton("5x5 Puzzle", "", () => setup(5))}
-    {@render myButton("7x7 Puzzle", "", () => setup(7))}
-  </div>
   {/if}
-</div>
+    <div class="choices">
+      <MyButton t="5x5 Puzzle" mystyle="" func={() => setup(5)} />
+      <MyButton t="7x7 Puzzle" mystyle="" func={() => setup(7)} />
+      <!-- {@render myButton("5x5 Puzzle", "", () => setup(5))} -->
+      <!-- {@render myButton("7x7 Puzzle", "", () => setup(7))} -->
+    </div>
+  {/if}
+</main>
 
 
 
@@ -169,6 +203,10 @@
     .board{
       --gap: 0.25rem;
     } 
+  }
+
+  h2 {
+    text-align: center;
   }
   .choices {
     margin-top: 1rem;

@@ -39,7 +39,7 @@ const oneWordFromList = async (obj) => {
 };
 
 export const pickSixWords = async (): Promise<string[]> => {
-  await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
+  await new Promise(resolve => setTimeout(resolve, 300)); // Add a short delay
   const words = new Set();
   const maxAttempts = 20000;
 
@@ -83,7 +83,7 @@ export const pickSixWords = async (): Promise<string[]> => {
 }
 
 export const pickEightWords = async (): Promise<string[]> => {
-  await new Promise(resolve => setTimeout(resolve, 10)); // Add a short delay
+  await new Promise(resolve => setTimeout(resolve, 300)); // Add a short delay
   const words = new Set();
   const maxAttempts = 20000;
   

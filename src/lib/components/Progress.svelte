@@ -1,10 +1,11 @@
 <script>
   // import PieChart2 from "./PieChart2.svelte";
+  import { myBools } from "$lib/utils.svelte";
   let props = $props();
 </script>
 <div class="prog">
   <progress value={props.currentTurn} max={props.startingSwaps}></progress>
-  <button class="swapsnotice" onclick={props.toggleDebug}>{props.currentTurn} swaps remain</button>
+  <button class="swapsnotice" onclick={() => myBools.debug = !myBools.debug}>{props.currentTurn} swaps remain</button>
   <!-- <PieChart2 {props.board} height={'1'} /> -->
 </div>
 

@@ -9,7 +9,7 @@ export interface Tile {
   swapStatus: string;
   hidden: boolean;
 }
-export type Board = Tile[][];
+export type Board = Tile[][] | null;
 export type GameReturnType = {
   gridSize: number;
   grid: Board;

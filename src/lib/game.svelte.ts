@@ -12,6 +12,7 @@ export function createGame(gridSize: number): GameReturnType {
   let currentTurn: number = _startingSwaps;
 
   async function initialize(puzzleArr?: string[]): Promise<Board> {
+    console.log('initialize() called');
     _words = puzzleArr ? puzzleArr : await pickWords(_gridSize);
     currentTurn = _startingSwaps;
     _grid = fillWaffleGrid(_grid, _words);
