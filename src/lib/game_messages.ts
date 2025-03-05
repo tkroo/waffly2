@@ -25,12 +25,7 @@ export const gameMessages = {
   close: [
     "That was a close one!",
     "Just squeaked by!",
-    "Whew! That was close!",
-    "Down to the wire!",
-    "Close, but you did it!",
-    "Too close for comfort!",
-    "Had me worried there!"
-
-    
+    "That was close!",
+    "Whew! You did it!"
   ]
 };

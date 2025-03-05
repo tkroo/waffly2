@@ -8,6 +8,7 @@
   import { myBools, myArrays } from '$lib/utils.svelte';
   import { createGame } from '$lib/game.svelte';
   import { decodeText, encodeText } from '$lib/rot13.js';
+  import { writeGameToFireStore } from '$lib/writeToFirestore';
 
   import Debug2 from '$lib/components/Debug2.svelte';
   import DefinitionList from '$lib/components/DefinitionList.svelte';
@@ -57,6 +58,7 @@
       words = game?.getWords();
       if(!puzzle && words?.length) {
         updateURL([s.toString(), ...words]);
+        writeGameToFireStore(words);
       }
       puzzle = null;
       myArrays.completedWords = [];
