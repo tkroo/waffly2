@@ -757,7 +757,6 @@ export const words = [
   "discuss",
   "disdain",
   "disease",
-  "diseuse",
   "disgust",
   "disjoin",
   "dislike",
