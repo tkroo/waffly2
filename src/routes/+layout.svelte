@@ -1,5 +1,5 @@
 <script>
-  import { myBools } from "$lib/utils.svelte";
+  import { mySettings } from "$lib/utils.svelte";
   let { children } = $props();
 </script>
 
@@ -8,6 +8,6 @@
   <meta name="description" content="waffle game clone">
 </svelte:head>
 
-<div class:cb={myBools.highContrast}>
+<div class:cb={mySettings.current.myContrast}>
   {@render children()}
 </div>

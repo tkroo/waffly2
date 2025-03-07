@@ -5,7 +5,7 @@
   import { pushState } from '$app/navigation';
 
   import type { Tile } from '$lib/types';
-  import { myBools, myArrays } from '$lib/utils.svelte';
+  import { myBools, myArrays, mySettings } from '$lib/utils.svelte';
   import { createGame } from '$lib/game.svelte';
   import { decodeText, encodeText } from '$lib/rot13.js';
   import { writeGameToFireStore } from '$lib/writeToFirestore';
@@ -26,7 +26,6 @@
   let showPopup = $state(false);
   let words = $state();
   let puzzle = $state();
-
 
   onMount(() => {
     checkForPuzzle();
@@ -136,7 +135,7 @@
       currentTurn = game?.getCurrentTurn();
     }
     if (e.key == 'd') {
-      myBools.fetchDefinitions = !myBools.fetchDefinitions;
+      mySettings.current.fetchDefinitions = !mySettings.current.fetchDefinitions;
     }
     // if (e.key == '?') {
     //   showPopup = !showPopup;
@@ -180,7 +179,7 @@
       {/each}
     </div>
     <Messages {currentTurn} {outOfTurns} {solved} {setup} {shuffle} />
-    {#if myBools.fetchDefinitions}<DefinitionList />{/if}
+    {#if mySettings.current.fetchDefinitions}<DefinitionList />{/if}
     <Debug2 {board} {words} />
 
     

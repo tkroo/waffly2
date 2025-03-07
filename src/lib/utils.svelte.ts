@@ -1,13 +1,19 @@
+import { LocalStorage as LocalStorageState } from '$lib/storage.svelte';
+
 export const myBools = $state({
   debug: false,
-  highContrast: false,
-  fetchDefinitions: false,
   working: false,
   generateError: false
 })
 
+// firestore collection name
 export const COLLECTION_NAME = 'wafflygames'
 
 export const myArrays = $state({
   completedWords: [] as string[],
+})
+
+export const mySettings = new LocalStorageState('mySettings', {
+  myContrast: false,
+  fetchDefinitions: false
 })

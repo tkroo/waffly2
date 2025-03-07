@@ -57,30 +57,6 @@
     border-radius: var(--radius);
     border: 4px solid hsla(0, 0%, 80%, 0);
     transition: all 0.2s ease-out;
-    /* background-color: hsla(200, 75%, 100%, 0.25); */
-  }
-
-
-  .tile .answer {
-    position: absolute;
-    z-index: 2;
-    top: 0.2rem;
-    right: 0.2rem;
-    font-size: 0.7rem;
-    opacity: 0;
-    background-color: #000;
-    color: #fff;
-    /* box-shadow: 2px 2px 4px 2px hsla(0, 0%, 0%, 0.25); */
-    height: 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    aspect-ratio: 1/1;
-    border-radius: var(--radius);
-  }
-
-  .cheat .answer {
-    opacity: 1 !important;
   }
   .tile.active {
     transition: all 0.1s ease-out;
@@ -88,12 +64,10 @@
     outline: 0.5rem solid hsla(200, 60%, 60%, 0.5);
     outline-offset: -0.5rem;
     z-index: 1000;
-    /* background-color: hsl(36, 24%, 83%); */
   }
 
   .tile.active .inner {
     background-color: hsla(36, 24%, 100%, 0.25);
-    /* border: 6px solid hsl(200, 60%, 60%); */
   }
 
   .tile[data-status='c'] {
@@ -109,7 +83,6 @@
     background-color: var(--xcolor);
   }
   .tile[data-swapStatus='woo'][data-status='c'] {
-    /* border-radius: 50%; */
     animation-delay: 0s !important;
     animation: woo2 0.4s ease-in-out 0s 2 reverse both running;
   }

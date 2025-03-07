@@ -1,4 +1,4 @@
-// src/routes/api/fb/delete/+server.js
+// src/routes/api/firestore/delete/+server.js
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/firebase.server.js';
 import { doc, deleteDoc } from 'firebase/firestore';

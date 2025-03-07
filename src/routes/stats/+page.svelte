@@ -11,7 +11,7 @@
 
   async function deleteData(id) {
     gdata = gdata.filter(g => g.id != id);
-    const response = await fetch('/api/fb/delete', {
+    const response = await fetch('/api/firestore/delete', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "collectionName":COLLECTION_NAME, id }),

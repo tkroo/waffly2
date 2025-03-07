@@ -1,13 +1,12 @@
 <script>
   import LinkToOriginal from "$lib/components/LinkToOriginal.svelte";
-  import { myBools } from "$lib/utils.svelte";
+  import { mySettings } from "$lib/utils.svelte";
   let { showPopup = $bindable() } = $props();
   import { fade } from "svelte/transition";
 </script>
 
 {#if showPopup}
 <div class="popup" transition:fade={{duration: 100}}>
-<!-- <div class="popup" class:showPopup={myBools.showPopup}> -->
   <div class="content">
     <h2>How to Play</h2>
     <p>
@@ -23,11 +22,11 @@
     </ul>
     <h2>Preferences</h2>
     <label for="highContrast">
-      <input type="checkbox" id="highContrast" bind:checked={myBools.highContrast}>
+      <input type="checkbox" id="highContrast" bind:checked={mySettings.current.myContrast}>
       High contrast colors
     </label>
     <label for="definitions">
-      <input type="checkbox" id="definitions" bind:checked={myBools.fetchDefinitions}>
+      <input type="checkbox" id="definitions" bind:checked={mySettings.current.fetchDefinitions}>
       Show word definitions
     </label>
     <h2>Keyboard</h2>

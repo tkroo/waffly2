@@ -7,7 +7,7 @@ export const writeGameToFireStore = async(words) => {
         words: words,
         rot13string: words[0].length + '' + encodeText(words)
       }
-      const response = await fetch('/api/fb/write', {
+      const response = await fetch('/api/firestore/write', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ collectionName: COLLECTION_NAME, data }),

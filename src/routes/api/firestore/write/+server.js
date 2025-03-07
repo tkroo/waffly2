@@ -1,4 +1,4 @@
-// src/routes/api/fb/write/+server.js
+// src/routes/api/firestore/write/+server.js
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/firebase.server.js';
 import { collection, addDoc } from 'firebase/firestore';

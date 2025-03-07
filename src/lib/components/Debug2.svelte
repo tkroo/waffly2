@@ -42,24 +42,14 @@
     color: #fff;
     padding: 0.5rem 1rem;
     z-index: 1000;
-    /* font-size: 2rem; */
-  }
-  .cols {
-    display: flex;
-    gap: 1rem;
-  }
-  .cols .mono {
-    font-size: 0.85rem;
   }
   .mono {
     padding: 0;
     letter-spacing: 10px;
-    /* font-weight: bold; */
     text-align: left;
     font-size: 0.85rem;
     font-family: monospace;
   }
-  
 
   :global {
     .blank {
