@@ -470,6 +470,7 @@ export const words = [
   "circlet",
   "circuit",
   "cistern",
+  "citadel",
   "citizen",
   "clarify",
   "clarity",
