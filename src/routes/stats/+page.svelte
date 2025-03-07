@@ -37,7 +37,7 @@
 </script>
 
 <div class="wrapper">
-  <h1><a href="/">waffly</a></h1>
+  <h1><a class="knockout" href="/">waffleclone</a></h1>
   <section>
     <h1>Word checker</h1>
     <label for="testword"><input type="text" id="testword" bind:value={testword}> is <span class:green={testword.length == 7 || testword.length == 5}>{testword.length} letters</span>
@@ -120,5 +120,20 @@
     background-color: var(--ccolor);
     color: var(--bg);
     border-radius: 0.5rem;
+  }
+
+  .knockout {
+    margin: 0;
+    padding: 0;
+    font-size: 2rem;
+    font-weight: bold;
+    /* text-transform: uppercase; */
+    /* color: var(--ccolor); */
+    background: linear-gradient(0deg, var(--ccolor), var(--icolor));
+    background: -webkit-linear-gradient(0deg, var(--ccolor), var(--icolor));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
   }
 </style>
