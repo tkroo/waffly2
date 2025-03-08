@@ -1,4 +1,4 @@
-import { pickSixWords, pickEightWords } from "$lib/pickWords";
+import { pickSixWords, pickEightWords } from "$lib/pickWords_faster";
 import type { GameReturnType, Board, Tile } from "./types";
 import { myArrays } from "./utils.svelte";
 
