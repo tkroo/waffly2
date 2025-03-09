@@ -26,6 +26,16 @@
   let showPopup = $state(false);
   let words = $state();
   let puzzle = $state();
+  let tempCount = $state(0);
+  let lastCount = 0;
+
+  let howManySolvedSinceLastSolve = $derived.by(() => {
+    let c = myArrays.completedWords.length;
+    let l = lastCount;
+    lastCount = c;
+    const foo = c - l;
+    return foo;
+  });
 
   onMount(() => {
     checkForPuzzle();
@@ -145,6 +155,11 @@
     // }
   }
 
+  const bonusTurns = (x) => {
+    game?.increaseTurns(x);
+    currentTurn = game?.getCurrentTurn();
+  }
+
 </script>
 
 <!-- {#snippet myButton(t: string, mystyle: string, func: (e: Event) => void)}
@@ -156,6 +171,7 @@
 
 <main>
   <Header {title} {showPopup} bind:board={board} />
+  <!-- <p>solved this turn: {howManySolvedSinceLastSolve}</p> -->
   {#if board}
   <Progress {currentTurn} startingSwaps={game?.startingSwaps} {board} />
   <div transition:fade class="board" class:solved={solved} class:failed={outOfTurns} style="--cols: {board.length}" >

@@ -5,9 +5,6 @@ import { wordlist_7 } from './wordlist_7.js';
 const wordlist5ByPositions = preprocessWordlist(wordlist_5);
 const wordlist7ByPositions = preprocessWordlist(wordlist_7);
 
-console.log('Preprocessed wordlists');
-console.log(wordlist7ByPositions);
-
 function preprocessWordlist(wordlist: string[]): Record<number, Record<string, string[]>> {
   return wordlist.reduce((acc, word) => {
     for (let i = 0; i < word.length; i++) {
