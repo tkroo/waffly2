@@ -1666,7 +1666,6 @@ const words_5 = [
   "lutes",
   "lying",
   "lymph",
-  "lynch",
   "lyric",
   "maces",
   "madam",
