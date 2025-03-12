@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
+	import Spinner from "./spinner.svelte";
   let { word } = $props();
   let tdelay = 300;
 
@@ -19,7 +20,7 @@
 <div class="definition-wrap">
   <span class="word" class:loaded={getDefinition}>{word}</span>
   {#await getDefinition()}
-  <ul><li>loading...</li></ul>
+  <ul><li><Spinner message={"fetching definition..."}/></li></ul>
   {:then data}
   <div class="fadein" in:fade={{ delay: tdelay+1, duration: tdelay }}>
     <ul>

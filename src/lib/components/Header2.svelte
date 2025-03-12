@@ -1,6 +1,6 @@
 <script>
 	import Info from "./Info.svelte";
-  import { myBools, mySettings } from "$lib/utils.svelte";
+  import { mySettings } from "$lib/utils.svelte";
   let { title, showPopup, board=$bindable() } = $props();
 </script>
 

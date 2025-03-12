@@ -331,7 +331,6 @@ export const words = [
   "brindle",
   "brioche",
   "brisket",
-  "british",
   "broadly",
   "brocade",
   "brother",

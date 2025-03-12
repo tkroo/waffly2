@@ -57,7 +57,7 @@
     pushState(page.url, {});
   }
   
-  const setup = async (s) => {
+  const setup = async (s: number) => {
     myBools.working = true;
     myBools.generateError = false;
     game = createGame(s);

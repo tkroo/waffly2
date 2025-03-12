@@ -1,13 +1,15 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
 	import LetterTile from "$lib/components/LetterTile.svelte";
+  import DefinitionList from '$lib/components/DefinitionList.svelte';
 	import Spinner from "$lib/components/spinner.svelte";
-  import { GameFactory } from "$lib/game2.svelte";
+  import { mySettings, myArrays } from '$lib/utils.svelte';
+  import { type Board, type Game, type Tile, GameFactory } from "$lib/game2.svelte";
   import { writeGameToFireStore } from '$lib/writeToFirestore';
-	import Header from '$lib/components/Header.svelte';
+	import Header from '$lib/components/Header2.svelte';
 	import Progress from '$lib/components/Progress.svelte';
 
-  let game = $state();
+  let game: Game | undefined= $state();
   let gameReady = $state(false);
   let currentTurn = $state();
   let debug = $state(false);
@@ -20,12 +22,13 @@
     generationError = false;
     try {
       game = await GameFactory(size);
-      currentTurn = game?.startingSwaps;
+      currentTurn = game.startingSwaps;
       // await insertGame(game.words, size);
       writeGameToFireStore(game.words);
       gameReady = true;
       working = false;
       generationError = false;
+      myArrays.completedWords = [];
     } catch (error) {
       console.error('Error initializing game:', error);
       generationError = true;
@@ -52,27 +55,21 @@
   //   }
   // }
 
-  const handleTileClick = (tile) => {
+  const handleTileClick = (tile: Tile) => {
     game?.swapTile(tile);
     currentTurn = game?.getCurrentTurn();
     game?.updateTileStatuses(game.grid);
+    myArrays.completedWords = game?.checkRowsAndColumns(game.grid) ?? [];
   }
 
   const solved = $derived.by(() => {
-    if(!gameReady) return false;
-    for (let i = 0; i < game.grid.length; i++) {
-      for (let j = 0; j < game.grid.length; j++) {
-        if (game.grid[i][j].value != game.grid[i][j].correctValue) {
-          return false;
-        }
-      }
-    }
-    return true;
+    if(!gameReady || !game) return false;
+    return game.grid.flat().every(tile => tile.value == tile.correctValue);
   });
 
   const outOfTurns = $derived.by((): boolean => {
     if(!gameReady) return false;
-    return currentTurn !== null && currentTurn !== undefined && currentTurn <= 0 && !solved;
+    return currentTurn !== null && currentTurn !== undefined && (currentTurn as number) <= 0 && !solved;
   });
 
   const solvePuzzle = () => {
@@ -81,12 +78,18 @@
     generationError = false;
     // board = game?.solveGrid(board) ?? board;
     // board = game?.updateTileStatuses(board) ?? board;
-    // myArrays.completedWords = game?.checkRowsAndColumns(board) ?? [];
+    myArrays.completedWords = game?.checkRowsAndColumns(game.grid) ?? [];
   }
 
 
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key == '-') {
+      debug = !debug;
+    }
+    if (e.key == '=') {
+      shuffle();
+    }
     if (e.key == '5') {
       initialize(5);
     }
@@ -101,12 +104,16 @@
       currentTurn = game?.getCurrentTurn();
     }
     if (e.key == '[') {
-      game?.decreaseTurns();
+      game?.decreaseTurns(1);
       currentTurn = game?.getCurrentTurn();
     }
-    if (e.key == '-') {
-      debug = !debug;
-    }
+  }
+
+  const shuffle = () => {
+    game?.resetTurns();
+    currentTurn = game?.startingSwaps;
+    myArrays.completedWords = [];
+    game?.shuffle2DArray(game.grid);
   }
 
 
@@ -118,8 +125,8 @@
 
 
 <main>
-  <Header title="waffleclone" board={game?.grid} {showPopup} />
-    {#if gameReady}
+  <Header title="waffleclone" {showPopup} />
+    {#if gameReady && game}
     <Progress {currentTurn} startingSwaps={game?.startingSwaps} board={game?.grid} />
     <div class="board" class:solved={solved} class:failed={outOfTurns} style="--cols: {game.grid.length}">
       {#each game.grid as row, rowIndex}
@@ -147,6 +154,7 @@
       <div transition:fade>
         {#if outOfTurns}
           <h2>out of turns!</h2>
+          <button class="myButton" onclick={shuffle}>Retry?</button>
         {:else if solved}
           <h2>solved!</h2>
         {/if}
@@ -162,23 +170,20 @@
           {#if generationError}
             <div class="errormessage">Failed to generate puzzle. Try again.</div>
           {:else}
-            <Spinner />
+            <Spinner message={'generating...'} />
           {/if}
         </div>
       {/if}
     
+      {#if mySettings.current.fetchDefinitions}<DefinitionList />{/if}
 
-    {#if debug && gameReady}
+    {#if debug && gameReady && game}
       {game.words}
     {/if}
 </main>
 
 
 <style>
-  .wrapper {
-    max-width: var(--maxwide);
-    margin: 0 auto;
-  }
   .board {
     --gap: 0.5rem;
     position: relative;
@@ -189,15 +194,18 @@
     container-type: inline-size;
     width: 100%;
   }
+
   .board.failed {
     opacity: 0.5;
   }
+
   .row {
     display: grid;
     gap: var(--gap);
     grid-template-columns: repeat(var(--cols), 1fr);
     width: 100%;
   }
+
   .tile.blank {
     visibility: hidden;
   }
@@ -224,6 +232,7 @@
     justify-content: center;
     margin: 0 auto;
   }
+
   .myButton:hover {
     color: #fff;
     background-color: var(--ccolor);
@@ -233,6 +242,7 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
   .myButton:disabled:hover {
     opacity: 0.5;
     cursor: not-allowed;

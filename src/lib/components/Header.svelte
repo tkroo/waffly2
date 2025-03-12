@@ -47,7 +47,7 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-fill-color: transparent;
+    /* text-fill-color: transparent; */
   }
   .abs svg path {
     stroke: none;

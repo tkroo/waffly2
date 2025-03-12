@@ -1,19 +1,48 @@
 import { pickEightWords, pickSixWords } from "./pickWords_faster";
+import { myArrays } from "./utils.svelte";
 
-export async function GameFactory(gridSize: number) {
+export interface Tile {
+  value: string;
+  correctValue: string;
+  status: 'c' | 'i' | 'x' | '';
+  x: number;
+  y: number;
+  swapStatus: 'selected' | '';
+  hidden: boolean;
+}
+
+export type Board = Tile[][];
+
+export interface Game {
+  words: string[];
+  grid: Board;
+  swapTile: (tile: Tile) => void;
+  updateTileStatuses: (grid: Board) => Board;
+  startingSwaps: number;
+  currentTurn: number;
+  getCurrentTurn: () => number;
+  solveGrid: (grid: Board) => Board;
+  decreaseTurns: (n: number) => void;
+  increaseTurns: (n: number) => void;
+  checkRowsAndColumns: (grid: Board) => string[] | undefined;
+  resetTurns: () => void;
+  shuffle2DArray: (myArray: Board) => Board;
+}
+
+export async function GameFactory(gridSize: number): Promise<Game> {
   const words = gridSize === 5 ? await pickSixWords() : await pickEightWords();
   const grid = generateGrid(gridSize);
   let startingSwaps:number = gridSize == 5 ? 16 : 32;
   let currentTurn: number = startingSwaps;
-  let _selectedTile = null;
+  let _selectedTile: Tile | null = null;
 
-  function generateGrid(gridSize: number) {
-    const grid = [];
+  function generateGrid(gridSize: number): Board {
+    const grid: Board= [];
     for (let r = 0; r < gridSize; r++) {
-      const row = [];
+      const row: Tile[] = [];
       for (let c = 0; c < gridSize; c++) {
         const hidden = (r % 2 == 1 && c % 2 == 1);
-        const tile = { value: ``, correctValue: ``, status: '', x: r, y: c, swapStatus: '', hidden: hidden };
+        const tile: Tile = { value: ``, correctValue: ``, status: '', x: r, y: c, swapStatus: '', hidden: hidden };
         row.push(tile);
       }
       grid.push(row);
@@ -21,7 +50,7 @@ export async function GameFactory(gridSize: number) {
     return grid;
   }
 
-  function fillWaffleGrid(grid, words) {
+  function fillWaffleGrid(grid: Board, words: string[]): Board {
     if (!grid) {
       throw new Error('grid is undefined');
     }
@@ -89,7 +118,7 @@ export async function GameFactory(gridSize: number) {
     return grid;
   }
 
-  function shuffle2DArray(myArray) {
+  function shuffle2DArray(myArray: Board): Board {
     if (!myArray) {
       throw new Error('myArray is undefined');
     }
@@ -158,6 +187,26 @@ export async function GameFactory(gridSize: number) {
     }
   }
 
+  function checkRowsAndColumns(grid: Board): string[] {
+    for (let i = 0; i < gridSize; i++) {
+      let r = getRow(i, grid);
+      let c = getCol(i, grid);
+      if (r.every(tile => tile.value === tile.correctValue) && (i % 2 == 0)) {
+        let word = r.map(tile => tile.correctValue).join('');
+        if (!myArrays.completedWords.includes(word)) {
+          myArrays.completedWords.push(word);
+        }
+      }
+      if (c.every(tile => tile.value === tile.correctValue) && (i % 2 == 0)) {
+        let word = c.map(tile => tile.correctValue).join('');
+        if (!myArrays.completedWords.includes(word)) {
+          myArrays.completedWords.push(word);
+        }
+      }
+    }
+    return myArrays.completedWords;
+  }
+
   function updateTileStatuses(grid: Board): Board {
     if (!grid) {
       throw new Error('grid is undefined');
@@ -190,7 +239,7 @@ export async function GameFactory(gridSize: number) {
     return grid;
   }
 
-  function solveGrid(grid) {
+  function solveGrid(grid: Board): Board {
     if (!grid) {
       throw new Error('grid is undefined');
     }
@@ -223,14 +272,18 @@ export async function GameFactory(gridSize: number) {
     return currentTurn ?? 0;
   }
 
-  function decreaseTurns() {
+  function decreaseTurns(n: number = 1) {
     if (currentTurn > 0) {
-      currentTurn = currentTurn - 1;
+      currentTurn = currentTurn - n;
     }
   }
 
-  function increaseTurns() {
-    currentTurn = currentTurn + 1;
+  function increaseTurns(n: number = 1) {
+    currentTurn = currentTurn + n;
+  }
+
+  function resetTurns() {
+    currentTurn = startingSwaps;
   }
 
   return {
@@ -243,6 +296,9 @@ export async function GameFactory(gridSize: number) {
     getCurrentTurn,
     solveGrid,
     decreaseTurns,
-    increaseTurns
+    increaseTurns,
+    checkRowsAndColumns,
+    resetTurns,
+    shuffle2DArray
   };
 }
