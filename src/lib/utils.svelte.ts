@@ -15,5 +15,7 @@ export const myArrays = $state({
 
 export const mySettings = new LocalStorageState('mySettings', {
   myContrast: false,
-  fetchDefinitions: false
+  fetchDefinitions: false,
+  startingSwaps5: 16,
+  startingSwaps7: 32,
 })

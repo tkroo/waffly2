@@ -1821,6 +1821,7 @@ export const words = [
   "several",
   "severed",
   "sextant",
+  "shampoo",
   "shelter",
   "sheriff",
   "shifter",

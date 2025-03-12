@@ -97,6 +97,7 @@ button:disabled {
 
 .solved .tile, .failed .tile {
   cursor: initial;
+  color: var(--tileFG) !important;
 }
 
 .solved .tile[data-swapStatus='woo'] {

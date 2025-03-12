@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import LetterTile from '$lib/components/LetterTile.svelte';
+	import { gameMessages } from '$lib/game_messages';
 	import DefinitionList from '$lib/components/DefinitionList.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { mySettings, myArrays } from '$lib/utils.svelte';
@@ -8,10 +9,11 @@
 	import { writeGameToFireStore } from '$lib/writeToFirestore';
 	import Header from '$lib/components/Header2.svelte';
 	import Progress from '$lib/components/Progress.svelte';
+	import WordsProgress from '$lib/components/WordsProgress.svelte';
 
 	let game: Game | undefined = $state();
 	let gameReady = $state(false);
-	let currentTurn = $state();
+	let currentTurn = $state(0);
 	let debug = $state(false);
 	let working = $state(false);
 	let generationError = $state(false);
@@ -111,16 +113,21 @@
 		game?.resetTurns();
 		currentTurn = game?.startingSwaps;
 		myArrays.completedWords = [];
-		game?.shuffle2DArray(game.grid);
+		game.grid = game?.shuffle2DArray(game.grid);
 	};
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
 
+{#snippet myButton(text: string, func: () => void)}
+	<button class="myButton" onclick={func}>{text}</button>
+{/snippet}
+
 <main>
 	<Header title="waffleclone" {showPopup} />
 	{#if gameReady && game}
 		<Progress {currentTurn} startingSwaps={game?.startingSwaps} board={game?.grid} />
+		<WordsProgress words = {game.words} />
 		<div class="board" class:solved class:failed={outOfTurns} style="--cols: {game.grid.length}">
 			{#each game.grid as row, rowIndex}
 				<div class="row" data-row={rowIndex}>
@@ -145,15 +152,24 @@
 	{#if solved || outOfTurns || !gameReady}
 		<div transition:fade>
 			{#if outOfTurns}
-				<h2>out of turns!</h2>
-				<button class="myButton" onclick={shuffle}>Retry?</button>
-			{:else if solved}
-				<h2>solved!</h2>
+				<!-- <h2>out of turns!</h2> -->
+				<div class="win-lose">
+				{gameMessages.lost[Math.floor(Math.random() * gameMessages.lost.length)]}
+				</div>
+				<!-- <button class="myButton" onclick={shuffle}>Retry?</button> -->
+				{@render myButton('Retry?', () => shuffle())}
+				{:else if solved}
+				<!-- <h2>solved!</h2> -->
+				 <div class="win-lose">
+					 {currentTurn < 2 ? gameMessages.close[Math.floor(Math.random() * gameMessages.close.length)] : gameMessages.won[Math.floor(Math.random() * gameMessages.won.length)]}
+					</div>
 			{/if}
 
 			<div class="controls">
-				<button class="myButton" onclick={() => initialize(5)}>5x5</button>
-				<button class="myButton" onclick={() => initialize(7)}>7x7</button>
+				<!-- <button class="myButton" onclick={() => initialize(5)}>new 5x5</button> -->
+				{@render myButton('new 5x5', ()=> initialize(5))}
+				<!-- <button class="myButton" onclick={() => initialize(7)}>new 7x7</button> -->
+				{@render myButton('new 7x7', ()=> initialize(7))}
 			</div>
 		</div>
 	{/if}
@@ -203,7 +219,7 @@
 
 	.controls {
 		display: flex;
-		gap: 0.5rem;
+		gap: 1rem;
 		justify-content: center;
 		margin: 1rem 0;
 		align-items: center;
@@ -247,4 +263,11 @@
 		font-weight: bold;
 		color: hsl(0, 87%, 55%);
 	}
+
+	.win-lose {
+    margin: 1rem auto;
+    font-size: 1.6rem;
+    text-align: center;
+		font-weight: bold;
+  }
 </style>

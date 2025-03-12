@@ -29,6 +29,12 @@
       <input type="checkbox" id="definitions" bind:checked={mySettings.current.fetchDefinitions}>
       Show word definitions
     </label>
+    <label for="startingSwaps5">
+      <input type="number" name="startingSwaps5" id="startingSwaps5" min=1 bind:value={mySettings.current.startingSwaps5} size="2"> Starting swaps for 5x5 <small>(default: 16)</small>
+    </label>
+    <label for="startingSwaps7">
+      <input type="number" name="startingSwaps7" id="startingSwaps7" min=1 bind:value={mySettings.current.startingSwaps7} size="2"> Starting swaps for 7x7 <small>(default: 32)</small>
+    </label>
     <h2>Keyboard</h2>
     <ul class="items smaller">
       <li class="col2"><span class="tile-little key">5</span>New 5x5</li>

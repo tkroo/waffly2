@@ -15,12 +15,13 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.25rem;
-    height: 1.5rem;
+    height: 0.5rem;
     gap: 0.25rem;
   }
 
   .swapsnotice {
-    font-size: 0.85rem;
+    /* font-size: 0.85rem; */
+    font-size: 13px;
   }
 
   progress[value],

@@ -1,5 +1,5 @@
 import { pickEightWords, pickSixWords } from "./pickWords_faster";
-import { myArrays } from "./utils.svelte";
+import { myArrays, mySettings } from "./utils.svelte";
 
 export interface Tile {
   value: string;
@@ -32,7 +32,7 @@ export interface Game {
 export async function GameFactory(gridSize: number): Promise<Game> {
   const words = gridSize === 5 ? await pickSixWords() : await pickEightWords();
   let grid = generateGrid(gridSize);
-  let startingSwaps:number = gridSize == 5 ? 16 : 32;
+  let startingSwaps:number = gridSize == 5 ? mySettings.current.startingSwaps5 || 16 : mySettings.current.startingSwaps7 || 32;
   let currentTurn: number = startingSwaps;
   let _selectedTile: Tile | null = null;
 
