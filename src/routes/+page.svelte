@@ -17,7 +17,7 @@
   import Messages from '$lib/components/Messages.svelte';
   import MyButton from '$lib/components/MyButton.svelte';
   import Progress from '$lib/components/Progress.svelte';
-  import Spinner from '$lib/components/spinner.svelte';
+  import Spinner from '$lib/components/Spinner.svelte';
 
   const title = 'waffleclone';
   let board = $state();

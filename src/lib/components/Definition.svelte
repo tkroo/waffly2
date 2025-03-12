@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-	import Spinner from "./spinner.svelte";
+	import Spinner from "./Spinner.svelte";
   let { word } = $props();
   let tdelay = 300;
 

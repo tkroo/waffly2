@@ -31,7 +31,7 @@ export interface Game {
 
 export async function GameFactory(gridSize: number): Promise<Game> {
   const words = gridSize === 5 ? await pickSixWords() : await pickEightWords();
-  const grid = generateGrid(gridSize);
+  let grid = generateGrid(gridSize);
   let startingSwaps:number = gridSize == 5 ? 16 : 32;
   let currentTurn: number = startingSwaps;
   let _selectedTile: Tile | null = null;
@@ -158,34 +158,57 @@ export async function GameFactory(gridSize: number): Promise<Game> {
     // return shuffledArray;
   }
 
-
   function swapTile(tile: Tile): void {
     if (!tile || tile.hidden) {
       return; // Do nothing if tile is null or hidden
     }
-    
+
     if (!_selectedTile) {
-      // First click: select the tile
       _selectedTile = tile;
-      _selectedTile.swapStatus = 'selected'; // Indicate selected state (for UI)
-      // UI needs to update tile's appearance based on swapStatus
+      _selectedTile.swapStatus = 'selected';
     } else {
-      // Second click: swap tiles
       if (_selectedTile === tile || _selectedTile.value == tile.value) {
-        // Deselect if the same tile is clicked again
-        _selectedTile.swapStatus = ''; // Clear selected state
+        _selectedTile.swapStatus = '';
         _selectedTile = null;
-        // UI needs to update tile's appearance
       } else {
         [_selectedTile.value, tile.value] = [tile.value, _selectedTile.value];
-        _selectedTile.swapStatus = ''; // Clear selected state for both
+        _selectedTile.swapStatus = '';
         currentTurn--;
         tile.swapStatus = '';
         _selectedTile = null;
+        grid = updateTileStatuses(grid); // Update tile statuses after swap
       }
       _selectedTile = null;
     }
   }
+
+  // function swapTile(tile: Tile): void {
+  //   if (!tile || tile.hidden) {
+  //     return; // Do nothing if tile is null or hidden
+  //   }
+    
+  //   if (!_selectedTile) {
+  //     // First click: select the tile
+  //     _selectedTile = tile;
+  //     _selectedTile.swapStatus = 'selected'; // Indicate selected state (for UI)
+  //     // UI needs to update tile's appearance based on swapStatus
+  //   } else {
+  //     // Second click: swap tiles
+  //     if (_selectedTile === tile || _selectedTile.value == tile.value) {
+  //       // Deselect if the same tile is clicked again
+  //       _selectedTile.swapStatus = ''; // Clear selected state
+  //       _selectedTile = null;
+  //       // UI needs to update tile's appearance
+  //     } else {
+  //       [_selectedTile.value, tile.value] = [tile.value, _selectedTile.value];
+  //       _selectedTile.swapStatus = ''; // Clear selected state for both
+  //       currentTurn--;
+  //       tile.swapStatus = '';
+  //       _selectedTile = null;
+  //     }
+  //     _selectedTile = null;
+  //   }
+  // }
 
   function checkRowsAndColumns(grid: Board): string[] {
     for (let i = 0; i < gridSize; i++) {

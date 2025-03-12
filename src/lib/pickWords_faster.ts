@@ -5,6 +5,14 @@ import { wordlist_7 } from './wordlist_7.js';
 const wordlist5ByPositions = preprocessWordlist(wordlist_5);
 const wordlist7ByPositions = preprocessWordlist(wordlist_7);
 
+/**
+ * Pre-processes a wordlist to create a nested record structure.
+ * The returned object maps each character position in the words to another object,
+ * which maps characters at that position to an array of words containing that character at that position.
+ * 
+ * @param wordlist - The list of words to preprocess.
+ * @returns A nested record structure for quick lookup of words by character positions.
+ */
 function preprocessWordlist(wordlist: string[]): Record<number, Record<string, string[]>> {
   return wordlist.reduce((acc, word) => {
     for (let i = 0; i < word.length; i++) {

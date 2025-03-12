@@ -2,7 +2,7 @@
   import { myBools } from "$lib/utils.svelte";
   import { gameMessages } from "$lib/game_messages";
   import MyButton from "$lib/components/MyButton.svelte";
-  import Spinner from "$lib/components/spinner.svelte";
+  import Spinner from "$lib/components/Spinner.svelte";
   let props = $props();
   import { fade } from "svelte/transition";
 </script>
